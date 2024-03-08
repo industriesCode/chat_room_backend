@@ -5,20 +5,15 @@ from django.contrib.auth.models import User
 
 
 class Room(models.Model):
-    """
-    JSON Structure for message field
-        {
-            "message":"Hi",
-            "sent_at":"12:30"
-        }
-    """
-    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
+    name = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False,
+        unique=True
+    )
     created_by = models.ForeignKey(
         User,
         on_delete=models.DO_NOTHING
-    )
-    messages = models.JSONField(
-        default=dict
     )
     created_at = models.DateTimeField(
         auto_now_add=True
@@ -29,3 +24,24 @@ class Room(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Messages(models.Model):
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.CASCADE
+    )
+    sent_by = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING
+    )
+    message = models.TextField()
+    sent_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return self.message
