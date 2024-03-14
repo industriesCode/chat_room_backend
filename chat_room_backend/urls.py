@@ -21,6 +21,6 @@ from chat_room.views import UserSignup, SignInAPIView, CreateRoom
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('signup/', UserSignup.as_view(), name='signup'),
-    path('api/signin/', SignInAPIView.as_view(), name='sign_in'),
+    path('signin/', SignInAPIView.as_view(), name='sign_in'),
     path('create-room/', CreateRoom.as_view(), name='create-room'),
 ]

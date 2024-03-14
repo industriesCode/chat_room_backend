@@ -18,4 +18,4 @@ class UserSerializer(serializers.ModelSerializer):
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = ['name', 'created_by', 'messages', 'created_at', 'updated_at']
+        fields = ['name', 'created_by', 'created_at', 'updated_at']
