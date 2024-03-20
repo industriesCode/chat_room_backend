@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from chat_room.models import Room
+from chat_room.models import Room, Messages
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,3 +19,17 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ['name', 'created_by', 'created_at', 'updated_at']
+
+
+class MessagesSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        request_method = self.context.get('request').method if 'request' in self.context else None
+
+        if request_method != 'POST':
+            self.fields['sent_by'] = serializers.CharField(source='sent_by.username', read_only=True)
+
+    class Meta:
+        model = Messages
+        fields = '__all__'

@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from chat_room.views import UserSignup, SignInAPIView, CreateRoom
+from chat_room.views import UserSignup, SignInAPIView, CreateRoom, RoomMessages
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('signup/', UserSignup.as_view(), name='signup'),
     path('signin/', SignInAPIView.as_view(), name='sign_in'),
-    path('create-room/', CreateRoom.as_view(), name='create-room'),
+    path('room/', CreateRoom.as_view(), name='create-room'),
+    path('message/', RoomMessages.as_view(), name='create-room'),
 ]
