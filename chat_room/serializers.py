@@ -26,7 +26,9 @@ class MessagesSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         request_method = self.context.get('request').method if 'request' in self.context else None
-
+        print("--------------------------")
+        print(request_method)
+        print("--------------------------")
         if request_method != 'POST':
             self.fields['sent_by'] = serializers.CharField(source='sent_by.username', read_only=True)
 

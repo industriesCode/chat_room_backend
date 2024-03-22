@@ -116,7 +116,7 @@ class RoomMessages(APIView):
             room_name = request.query_params.get('data', '')
             room = Room.objects.get(name=room_name)
             messages = Messages.objects.filter(room=room)
-            serializer = MessagesSerializer(messages, many=True)
+            serializer = MessagesSerializer(messages, many=True, context={'request': request})
             return Response(serializer.data)
         except Room.DoesNotExist:
             raise Http404
@@ -128,7 +128,7 @@ class RoomMessages(APIView):
             'sent_by': User.objects.get(username=request.data['sent_by']).pk,
         }
 
-        serializer = MessagesSerializer(data=request_data)
+        serializer = MessagesSerializer(data=request_data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
