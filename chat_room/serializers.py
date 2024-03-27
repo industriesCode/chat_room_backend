@@ -16,6 +16,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RoomSerializer(serializers.ModelSerializer):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        request_method = self.context.get('request').method if 'request' in self.context else None
+        if request_method != 'POST':
+            self.fields['created_by'] = serializers.CharField(source='created_by.username', read_only=True)
+
     class Meta:
         model = Room
         fields = ['name', 'created_by', 'created_at', 'updated_at']
@@ -26,9 +34,6 @@ class MessagesSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
 
         request_method = self.context.get('request').method if 'request' in self.context else None
-        print("--------------------------")
-        print(request_method)
-        print("--------------------------")
         if request_method != 'POST':
             self.fields['sent_by'] = serializers.CharField(source='sent_by.username', read_only=True)
 

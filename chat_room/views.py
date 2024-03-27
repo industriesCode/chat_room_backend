@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.http import Http404
-
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from .models import Room, Messages
 from rest_framework import status
 from django.utils import timezone
@@ -54,8 +55,18 @@ class SignInAPIView(APIView):
 
 
 class CreateRoom(APIView):
+    # authentication_classes = [BasicAuthentication]
+    # permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        serializer = RoomSerializer(data=request.data)
+
+        print(request.data)
+        data = {
+            'name': request.data['room'],
+            'created_by': User.objects.get(username=request.data['created_by']).pk
+        }
+        serializer = RoomSerializer(data=data, context={'request': request})
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -74,9 +85,9 @@ class CreateRoom(APIView):
         older_rooms = Room.objects.filter(created_at__date__lt=day_after_yesterday)
 
         # Serialize queryset for both today and yesterday
-        serializer_today = RoomSerializer(rooms_today, many=True)
-        serializer_yesterday = RoomSerializer(rooms_yesterday, many=True)
-        serializer_older = RoomSerializer(older_rooms, many=True)
+        serializer_today = RoomSerializer(rooms_today, many=True, context={'request': request})
+        serializer_yesterday = RoomSerializer(rooms_yesterday, many=True, context={'request': request})
+        serializer_older = RoomSerializer(older_rooms, many=True, context={'request': request})
 
         return Response(
             {
@@ -89,7 +100,7 @@ class CreateRoom(APIView):
 
     def patch(self, request, pk):
         room = Room.objects.get(pk=pk)
-        serializer = RoomSerializer(instance=room, data=request.data, partial=True)
+        serializer = RoomSerializer(instance=room, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -97,19 +108,25 @@ class CreateRoom(APIView):
 
     def put(self, request, pk):
         room = Room.objects.get(pk=pk)
-        serializer = RoomSerializer(instance=room, data=request.data)
+        serializer = RoomSerializer(instance=room, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        room = Room.objects.get(pk=pk)
-        room.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request):
+        try:
+            room_name = request.query_params.get('name', '')
+            room = Room.objects.get(name=room_name)
+            room.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Room.DoesNotExist:
+            raise Http404
 
 
 class RoomMessages(APIView):
+    # authentication_classes = [BasicAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
